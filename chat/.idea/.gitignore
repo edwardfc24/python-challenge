@@ -1,0 +1,15 @@
+# Default ignored files
+/shelf/
+/workspace.xml
+
+### Django ###
+*.log
+*.pyc
+*.xml
+*.iml
+
+### Python ###
+# Byte-compiled / optimized / DLL files
+**__pycache__/
+*.py[cod]
+*.pyi
