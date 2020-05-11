@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block main_content %}
+<div class="container">
+    <div class="row">
+        <div class="align-middle d-flex justify-content-center w-50">
+            <div class="w-100">
+                <header class="headerlogin">
+                    <div>
+                        <h2>Login</h2>
+                    </div>
+                </header>
+                <form role="form" action="/login/" method="post" id="login-form">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="username" class="col-form-label control-label">username</label>
+                        <input type="text" class="form-control" autocomplete="off" id="username"
+                               name="username">
+                    </div>
+                    <div class="form-group">
+                        <label for="password"
+                               class="col-form-label control-label">Password:</label>
+                        <input type="password" class="form-control" autocomplete="off" id="password"
+                               name="password">
+                    </div>
+                    <div class="form-group">
+                        <input type="submit" class="btn btn-success" value="Go!">
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

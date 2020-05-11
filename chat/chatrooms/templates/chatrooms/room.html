@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block main_content %}
+<div class="container">
+    <div class="row mt-5">
+        <div class="col-12 border" style="height:400px; overflow-y:scroll;">
+            <ul id="messages" class="list-group"></ul>
+        </div>
+    </div>
+    <div class="row mt-2">
+        <div class="col-12">
+            <div class="form-inline w-100">
+                <input type="hidden" id="current_user" value="{{username}}">
+                <div class="form-group mb-2 w-100">
+                    <label for="message">Message:</label>
+                    <input type="text" class="form-control" style="width:80%;" id="message" placeholder="Can use commands like /stock=xxx">
+                    <a href="javascript:sendMessage()" class="btn btn-primary mb-2 ml-2">Send</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block js %}
+<script type="text/javascript">
+    let chat_room = '{{ chat_room }}';
+    const chatSocket = new WebSocket(
+        'ws://'
+        + window.location.host
+        + '/ws/chatroom/'
+        + chat_room
+        + '/'
+    );
+
+    chatSocket.onopen = function(e) {
+        get_message_list();
+    }
+
+    chatSocket.onmessage = function(e) {
+        let data = JSON.parse(e.data);
+        for(i = 0; i < data.length; i++) {
+            let item = message_template(data[i]);
+            $("#messages").append(item);
+        }
+    };
+
+    chatSocket.onclose = function(e) {
+        console.error('Chat socket closed unexpectedly');
+    };
+
+    function get_message_list() {
+        chatSocket.send(JSON.stringify({'command': 'list'}));
+    }
+
+    function sendMessage(){
+        let message = $("#message").val();
+        let user = $("#current_user").val();
+        chatSocket.send(JSON.stringify({
+            'command': 'create',
+            'message': message,
+            'author': user,
+        }));
+    }
+
+    function message_template(data){
+        let user = $("#current_user").val();
+        if(data.author == user){
+            return `
+                <li class="list-group-item active text-right" id="${id}">
+                  <p><b>${data.author}</b><span class="badge badge-light">at ${data.formatted_time}</span>:</p>
+                  <p>${data.content}</p>
+                </li>
+            `;
+        }
+        return `
+            <li class="list-group-item" id="${id}">
+              <p><b>${data.author}</b><span class="badge badge-light">at ${data.formatted_time}</span>:</p>
+              <p>${data.content}</p>
+            </li>
+        `;
+    }
+</script>
+{% endblock js %}

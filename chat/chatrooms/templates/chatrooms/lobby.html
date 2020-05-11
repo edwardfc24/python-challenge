@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block main_content %}
+<div class="container">
+    <div class="row mt-5">
+        {% for room in chat_rooms %}
+        <div class="col-3">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h5 class="card-title">{{ room.name }}</h5>
+                    <p class="card-text">{% if room.description %}{{ room.description }}{% endif %}</p>
+                    <a href="/chatroom/{{ room.name }}" class="btn btn-primary">Start to chat</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        <div class="col-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Create a new chat's room</h5>
+                    <input type="text" id="new-chat" class="form-control mb-2" placeholder="Enter a name">
+                    <a href="javascript:createRoom()" class="btn btn-success">Create!</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block js %}
+<script type="text/javascript">
+    function createRoom() {
+        let name = $("#new-chat").val();
+        // Remove special characters
+        name = name.replace(/\W_/g,"");
+        window.location.href = "/chatroom/" + name;
+    }
+
+</script>
+{% endblock js %}
