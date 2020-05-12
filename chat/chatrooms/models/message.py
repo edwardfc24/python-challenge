@@ -8,6 +8,6 @@ from chatrooms.models import User, Chatroom
 class Message(BaseModel):
 
 	content = models.TextField()
-	autor = models.ForeignKey(User, on_delete=models.PROTECT, related_name='messages')
+	author = models.ForeignKey(User, on_delete=models.PROTECT, related_name='messages')
 	chatroom = models.ForeignKey(Chatroom, on_delete=models.PROTECT, related_name='messages')
 

@@ -17,6 +17,12 @@
                 aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
+        {% if user.is_authenticated %}
+        <form class="form-inline">
+            <b>{{ user.username }}</b>
+            <a href="/logout/" class="btn btn-info">Log out</a>
+        </form>
+        {% endif %}
     </nav>
     <div class="main-conten">
         {% block main_content %}

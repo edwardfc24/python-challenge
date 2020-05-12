@@ -2,11 +2,8 @@
 Manage the API	Request for stock
 """
 import csv
-import requests
-from asgiref.sync import async_to_sync
-from channels.layers import get_channel_layer
 
-from django.contrib.sites import requests
+import requests
 
 from base.repositories.message_repository import MessageRepository
 from chatrooms.models import User
@@ -26,12 +23,12 @@ class BotService:
 		url = self.base_url + command + self.url_params
 		response = requests.get(url)
 		# Validate the status response
-		if response.status == 200:
+		if response.status_code == 200:
 			file_stream = response.content.decode('utf-8')
-			stock_data = csv.reader(file_stream.splitlines(), delimiter=',').next()
+			stock_data = list(csv.reader(file_stream.splitlines(), delimiter=','))
 			# Header o file Symbol,Date,Time,Open,High,Low,Close,Volume
 			# Find the value in header
-			value_index = [i for i, head in range(stock_data[0]) if head == value]
+			value_index = [i for i, head in enumerate(stock_data[0]) if head == value]
 			status = 'Success'
 			if value_index:
 				return_value = stock_data[1][value_index[0]]
@@ -51,8 +48,11 @@ class BotService:
 		if command in self.enable_commands:
 			response = self.get_api_response(stock_code, 'Close')
 			if response['status'] == 'Success':
-				# Prepare the data in correct format
-				data = f"{ stock_code.upper() } quote is { response['value'] } per share"
+				if response['value'] != 'N/D':
+					# Prepare the data in correct format
+					data = f"{ stock_code.upper() } quote is { response['value'] } per share"
+				else:
+					data = f"{ stock_code.upper() } quote is not defined"
 			else:
 				data = 'Stock code not found'
 		else:
@@ -62,17 +62,10 @@ class BotService:
 		if not bot:
 			bot = User.objects.create(
 				username='stockBot',
-				name='Stock',
-				lastname='Bot',
-				email='bot@fake.com',
-				password='123456789'
+				first_name='Stock',
+				last_name='Bot',
+				password='123456789',
+				is_bot=True
 			)
 		message = self.message_repository.create_message(chatroom, bot, data, save_response)
-		# Send the message to channel group
-		channel_layer = get_channel_layer()
-		async_to_sync(channel_layer.group_send)(
-			chatroom.name,
-			{
-				'type': 'bot.message',
-				'message': message
-			})
+		return message

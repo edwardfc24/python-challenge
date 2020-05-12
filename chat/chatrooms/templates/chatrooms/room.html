@@ -1,7 +1,12 @@
 {% extends "base.html" %}
 {% block main_content %}
 <div class="container">
-    <div class="row mt-5">
+    <div class="row mt-5 mb-2">
+        <div class="col-12">
+            <a href="/chatroom/" class="btn btn-light">Go back</a>
+        </div>
+    </div>
+    <div class="row">
         <div class="col-12 border" style="height:400px; overflow-y:scroll;">
             <ul id="messages" class="list-group"></ul>
         </div>
@@ -33,12 +38,12 @@
 
     chatSocket.onopen = function(e) {
         get_message_list();
-    }
+    };
 
     chatSocket.onmessage = function(e) {
         let data = JSON.parse(e.data);
-        for(i = 0; i < data.length; i++) {
-            let item = message_template(data[i]);
+        for(i = 0; i < data.message.length; i++) {
+            let item = message_template(data.message[i]);
             $("#messages").append(item);
         }
     };
@@ -48,16 +53,20 @@
     };
 
     function get_message_list() {
-        chatSocket.send(JSON.stringify({'command': 'list'}));
+        chatSocket.send(JSON.stringify({
+            'type': 'build_message',
+            'command': 'list'
+        }));
     }
 
     function sendMessage(){
         let message = $("#message").val();
         let user = $("#current_user").val();
         chatSocket.send(JSON.stringify({
+            'type': 'build_message',
             'command': 'create',
             'message': message,
-            'author': user,
+            'from': user,
         }));
     }
 
@@ -65,15 +74,15 @@
         let user = $("#current_user").val();
         if(data.author == user){
             return `
-                <li class="list-group-item active text-right" id="${id}">
-                  <p><b>${data.author}</b><span class="badge badge-light">at ${data.formatted_time}</span>:</p>
+                <li class="list-group-item active text-right" id="${data.id}">
+                  <p><b>${data.author}</b>   <span class="badge badge-light">${data.formatted_time}</span>:</p>
                   <p>${data.content}</p>
                 </li>
             `;
         }
         return `
-            <li class="list-group-item" id="${id}">
-              <p><b>${data.author}</b><span class="badge badge-light">at ${data.formatted_time}</span>:</p>
+            <li class="list-group-item" id="${data.id}">
+              <p><b>${data.author}</b>   <span class="badge badge-light">${data.formatted_time}</span>:</p>
               <p>${data.content}</p>
             </li>
         `;
