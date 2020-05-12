@@ -66,12 +66,13 @@ class ChatroomConsumer(WebsocketConsumer):
 
 	def message_list(self, message_obj):
 		messages = self.message_repository.get_last_messages_for_room(self.room_name)
+		messages.reverse()
 		content = {
 			'command': 'list',
 			'type': 'build_message',
 			'message': messages
 		}
-		self.send_message(content)
+		self.send(text_data=json.dumps(content))
 
 	# CONSTANTS
 	COMMANDS = {
